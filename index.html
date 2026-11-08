@@ -23,6 +23,22 @@
 html, body { height: 100%; overflow: hidden; background: var(--cream); }
 body { font-family: var(--sans); font-weight: 300; color: var(--charcoal); }
 
+/* ── VIDEO BG ── */
+.video-bg {
+  position: fixed; inset: 0; z-index: 0;
+}
+.video-bg video {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center;
+  opacity: 0; transition: opacity 1.6s ease;
+}
+.video-bg video.loaded { opacity: 1; }
+.video-bg::after {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(245,240,232,0.44);
+  pointer-events: none;
+}
+
 /* ── CORNER LABELS ── */
 .corner {
   position: fixed; z-index: 10;
@@ -98,6 +114,7 @@ body { font-family: var(--sans); font-weight: 300; color: var(--charcoal); }
   text-transform: uppercase;
   color: var(--charcoal);
   line-height: 1;
+  /* text shadow for legibility over video */
   text-shadow: 0 1px 20px rgba(245,240,232,0.7);
 }
 
@@ -262,6 +279,12 @@ body { font-family: var(--sans); font-weight: 300; color: var(--charcoal); }
 
 <div class="cover" id="cover"></div>
 
+<div class="video-bg">
+  <video id="bg-video" autoplay muted loop playsinline preload="auto">
+    <source src="Assets/pottery.mp4" type="video/mp4">
+  </video>
+</div>
+
 <div class="corner corner-tl" data-i18n="lab">Laboratorio ARIA</div>
 <div class="corner corner-tr">
   <div class="live-dot"></div>
@@ -314,6 +337,11 @@ body { font-family: var(--sans); font-weight: 300; color: var(--charcoal); }
     const cover = document.getElementById('cover');
     requestAnimationFrame(() => requestAnimationFrame(() => cover.classList.add('out')));
     setTimeout(() => cover.remove(), 1100);
+    const vid = document.getElementById('bg-video');
+    const show = () => vid.classList.add('loaded');
+    if (vid) {
+      vid.readyState >= 3 ? show() : vid.addEventListener('canplay', show, { once: true });
+    }
   });
 
   function enterApp(e) {

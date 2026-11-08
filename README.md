@@ -1,6 +1,6 @@
 # ARIA, Autonomous Research Intelligence Assistant
 
-![ARIA chat view](docs/media/app-chat.jpg)
+![ARIA landing page: the logo and title over a slow pottery video](docs/media/landing.gif)
 
 **An invisible researcher for a ceramic R&D lab. One chat, one alert feed, one map of open research gaps.**
 
@@ -29,16 +29,16 @@ Level 1 of the challenge was a chatbot over the provided dataset. Level 2 was op
 
 ## What you get
 
-1. **Landing page** (`index.html`). Logo, IT/EN toggle, one button into the lab. At the event a background video played behind it. That clip was not ours, so it is not included and the page uses a plain background.
+1. **Landing page** (`index.html`). Logo, IT/EN toggle, a slow pottery video behind everything, and one button into the lab.
 2. **Chat** (`app.html`). Opens on a scripted demo conversation about a Spanish matte-glaze patent and an EN 14411 revision. New messages go to `CHAT_ENDPOINT`.
 3. **Alerts.** Five monitoring alerts, each with a priority, a source and a category tag. Click one to mark it read.
 4. **Gap Analysis.** Four open research areas (low-temperature matte glazes, large-format adhesives, low-impact oxide pigments, fast-fire frits) with coverage and interest bars.
 5. **Documents.** Drag-and-drop upload. Files go to `UPLOAD_ENDPOINT`.
 6. **Mock backend** (`server.py`). FastAPI on port 8001. `/api/chat` answers with GPT-4o over a four-line in-memory "knowledge base" if `OPENAI_API_KEY` is set, and with a fixed Italian reply if it is not. `/api/upload` accepts a file and says it was indexed. It does not store or index anything.
 
-| Alerts | Gap Analysis |
-| --- | --- |
-| ![Alerts view](docs/media/app-alerts.jpg) | ![Gap Analysis view](docs/media/app-gaps.jpg) |
+| Chat | Alerts | Gap Analysis |
+| --- | --- | --- |
+| ![Chat view](docs/media/app-chat.jpg) | ![Alerts view](docs/media/app-alerts.jpg) | ![Gap Analysis view](docs/media/app-gaps.jpg) |
 
 ### How it was wired at the event
 
@@ -73,7 +73,7 @@ pip install -r requirements.txt
 python server.py                 # mock backend on http://localhost:8001
 ```
 
-In a second terminal, from the repo folder, serve the static files (the logo and animation load from `Assets/`):
+In a second terminal, from the repo folder, serve the static files (the logo, the background video and the animation load from `Assets/`):
 
 ```bash
 python3 -m http.server 8000
@@ -106,7 +106,7 @@ What does work: the landing page, all four views, the chat round trip to the loc
 | `index.html` | Landing page |
 | `app.html` | The ARIA web app (single file, vanilla JS, IT/EN strings) |
 | `server.py` | FastAPI mock backend |
-| `Assets/` | Logo and the "thinking" animation |
+| `Assets/` | Logo, landing background video and the "thinking" animation |
 | `docs/media/` | Screenshots |
 
 ---
