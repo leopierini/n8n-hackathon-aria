@@ -1,0 +1,2373 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARIA</title>
+  <link rel="icon" type="image/png" href="Assets/logo.png">
+  <!-- Font: carica da Google se online, fallback su serif/sans di sistema -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet" media="print" onload="this.media='all'">
+  <style>
+    /* Fallback stack — funziona anche senza internet */
+    :root {
+      --serif-stack: 'Cormorant Garamond', 'Palatino Linotype', Palatino, 'Book Antiqua', 'Georgia', serif;
+      --sans-stack: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    }
+  </style>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --cream: #F5F0E8;
+      --clay: #C8B49A;
+      --clay-light: rgba(200, 180, 154, 0.15);
+      --clay-border: rgba(200, 180, 154, 0.28);
+      --terracotta: #A0674A;
+      --ash: #8C8880;
+      --charcoal: #2A2620;
+      --white: #FDFAF5;
+      --smoke: #EDE8E0;
+      --danger: #C04A3A;
+      --success: #4A8C6A;
+      --mid: #B07840;
+      --sidebar-w: 220px;
+      --topbar-h: 48px;
+      --serif: var(--serif-stack, 'Cormorant Garamond', Palatino, 'Book Antiqua', Georgia, serif);
+      --sans: var(--sans-stack, 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif);
+    }
+
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--cream);
+    }
+
+    body {
+      font-family: var(--sans);
+      font-weight: 300;
+      color: var(--charcoal);
+      display: flex;
+    }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--white);
+      border-right: 0.5px solid var(--clay-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .sidebar-logo {
+      height: var(--topbar-h);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 16px;
+      border-bottom: 0.5px solid var(--clay-border);
+    }
+
+    .logo-svg {
+      width: 26px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+
+    .logo-text {
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: 1rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow-y: auto;
+    }
+
+    .nav-section-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--clay);
+      padding: 8px 8px 4px;
+      font-weight: 400;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+      user-select: none;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+      color: var(--ash);
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      font-weight: 300;
+      position: relative;
+    }
+
+    .nav-item:hover {
+      background: var(--clay-light);
+      color: var(--charcoal);
+    }
+
+    .nav-item.active {
+      background: var(--clay-light);
+      color: var(--charcoal);
+      font-weight: 400;
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 20%;
+      bottom: 20%;
+      width: 2px;
+      background: var(--terracotta);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .nav-icon {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .badge {
+      margin-left: auto;
+      background: var(--terracotta);
+      color: var(--white);
+      font-size: 0.6rem;
+      font-weight: 500;
+      padding: 1px 6px;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .badge.grey {
+      background: var(--smoke);
+      color: var(--ash);
+    }
+
+    .sidebar-bottom {
+      border-top: 0.5px solid var(--clay-border);
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .user-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .user-row:hover {
+      background: var(--clay-light);
+    }
+
+    .avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--smoke);
+      border: 0.5px solid var(--clay-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      color: var(--ash);
+      flex-shrink: 0;
+      font-family: var(--sans);
+    }
+
+    .user-name {
+      font-size: 0.78rem;
+      font-weight: 400;
+      color: var(--charcoal);
+    }
+
+    .user-role {
+      font-size: 0.65rem;
+      color: var(--ash);
+    }
+
+    /* ─── MAIN ─── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    /* ─── TOPBAR ─── */
+    .topbar {
+      height: var(--topbar-h);
+      border-bottom: 0.5px solid var(--clay-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      background: var(--white);
+      flex-shrink: 0;
+    }
+
+    .topbar-title {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      color: var(--charcoal);
+    }
+
+    .topbar-title em {
+      font-style: italic;
+      color: var(--ash);
+      font-size: 0.85rem;
+    }
+
+    .topbar-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .top-btn {
+      height: 28px;
+      padding: 0 12px;
+      border-radius: 3px;
+      border: 0.5px solid var(--clay-border);
+      background: transparent;
+      font-family: var(--sans);
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: var(--ash);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+      letter-spacing: 0.05em;
+    }
+
+    .top-btn:hover {
+      background: var(--clay-light);
+      color: var(--charcoal);
+      border-color: var(--clay);
+    }
+
+    .top-btn svg {
+      width: 12px;
+      height: 12px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.68rem;
+      color: var(--ash);
+      padding: 4px 10px;
+      border: 0.5px solid var(--clay-border);
+      border-radius: 20px;
+    }
+
+    .pulse {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.35
+      }
+    }
+
+    /* ─── VIEWS ─── */
+    .view {
+      display: none;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .view.active {
+      display: flex;
+    }
+
+    /* ═══════════════════════════
+   CHAT VIEW
+═══════════════════════════ */
+    .chat-view {
+      flex-direction: column;
+      background: var(--cream);
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .chat-messages::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .chat-messages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: var(--clay-border);
+      border-radius: 2px;
+    }
+
+    .msg-row {
+      display: flex;
+      gap: 12px;
+      padding: 10px 28px;
+      align-items: flex-start;
+      transition: background 0.15s;
+    }
+
+    .msg-row:hover {
+      background: rgba(200, 180, 154, 0.06);
+    }
+
+    .msg-av {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.58rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      margin-top: 2px;
+    }
+
+    .msg-av.user {
+      background: var(--smoke);
+      border: 0.5px solid var(--clay-border);
+      color: var(--ash);
+      font-family: var(--sans);
+    }
+
+    .msg-row.user-row {
+      flex-direction: row-reverse;
+    }
+
+    .msg-row.user-row .msg-content {
+      text-align: right;
+    }
+
+    .msg-row.user-row .msg-sender {
+      justify-content: flex-end;
+    }
+
+    .msg-av.aria-av {
+      background: transparent;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .msg-av.aria-av img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .msg-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .msg-sender {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--ash);
+      margin-bottom: 4px;
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+    }
+
+    .msg-sender .ts {
+      font-weight: 300;
+      font-size: 0.65rem;
+      color: rgba(140, 136, 128, 0.6);
+    }
+
+    .msg-text {
+      font-size: 0.85rem;
+      line-height: 1.65;
+      color: var(--charcoal);
+      font-weight: 300;
+    }
+
+    .msg-text strong {
+      font-weight: 500;
+    }
+
+    .source-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--white);
+      border: 0.5px solid var(--clay-border);
+      border-radius: 3px;
+      padding: 3px 8px;
+      font-size: 0.65rem;
+      color: var(--ash);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chip:hover {
+      background: var(--clay-light);
+      color: var(--charcoal);
+      border-color: var(--clay);
+    }
+
+    .chip svg {
+      width: 10px;
+      height: 10px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .divider-date {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 28px;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(140, 136, 128, 0.5);
+    }
+
+    .divider-date::before,
+    .divider-date::after {
+      content: '';
+      flex: 1;
+      height: 0.5px;
+      background: var(--clay-border);
+    }
+
+    /* CHAT INPUT */
+    .chat-input-area {
+      border-top: 0.5px solid var(--clay-border);
+      background: var(--white);
+      padding: 14px 24px;
+      flex-shrink: 0;
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      background: var(--cream);
+      border: 0.5px solid var(--clay-border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      transition: border-color 0.2s;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: var(--clay);
+    }
+
+    #chat-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      font-weight: 300;
+      color: var(--charcoal);
+      resize: none;
+      outline: none;
+      min-height: 20px;
+      max-height: 120px;
+      line-height: 1.5;
+    }
+
+    #chat-input::placeholder {
+      color: rgba(140, 136, 128, 0.5);
+    }
+
+    .input-actions {
+      display: flex;
+      gap: 6px;
+      align-items: flex-end;
+    }
+
+    .input-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 4px;
+      border: 0.5px solid var(--clay-border);
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .input-btn svg {
+      width: 13px;
+      height: 13px;
+      stroke: var(--ash);
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .input-btn:hover {
+      background: var(--clay-light);
+      border-color: var(--clay);
+    }
+
+    .input-btn:hover svg {
+      stroke: var(--charcoal);
+    }
+
+    .send-btn-main {
+      width: 30px;
+      height: 30px;
+      background: var(--charcoal);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+
+    .send-btn-main svg {
+      width: 13px;
+      height: 13px;
+      stroke: var(--white);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .send-btn-main:hover {
+      background: var(--terracotta);
+    }
+
+    .input-hint {
+      font-size: 0.65rem;
+      color: rgba(140, 136, 128, 0.5);
+      margin-top: 7px;
+      padding: 0 2px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ═══════════════════════════
+   ALERTS VIEW
+═══════════════════════════ */
+    .alerts-view {
+      background: var(--cream);
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .view-inner {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .view-inner::-webkit-scrollbar {
+      width: 4px
+    }
+
+    .view-inner::-webkit-scrollbar-thumb {
+      background: var(--clay-border);
+      border-radius: 2px
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-pill {
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 0.5px solid var(--clay-border);
+      background: var(--white);
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: var(--ash);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: var(--sans);
+    }
+
+    .filter-pill:hover,
+    .filter-pill.on {
+      background: var(--charcoal);
+      color: var(--white);
+      border-color: var(--charcoal);
+    }
+
+    .alerts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .alert-card {
+      background: var(--white);
+      border: 0.5px solid var(--clay-border);
+      border-radius: 4px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+
+    .alert-card:hover {
+      background: rgba(253, 250, 245, 0.95);
+      box-shadow: 0 2px 12px rgba(42, 38, 32, 0.06);
+    }
+
+    .alert-card+.alert-card {
+      border-top: none;
+      border-radius: 0;
+    }
+
+    .alert-card:first-child {
+      border-radius: 4px 4px 0 0;
+    }
+
+    .alert-card:last-child {
+      border-radius: 0 0 4px 4px;
+    }
+
+    .alert-card:only-child {
+      border-radius: 4px;
+    }
+
+    .rel-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+
+    .rel-dot.high {
+      background: var(--danger);
+    }
+
+    .rel-dot.med {
+      background: var(--mid);
+    }
+
+    .rel-dot.low {
+      background: var(--ash);
+      opacity: 0.4;
+    }
+
+    .alert-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .alert-title {
+      font-family: var(--serif);
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--charcoal);
+      margin-bottom: 3px;
+      line-height: 1.3;
+    }
+
+    .alert-meta {
+      font-size: 0.7rem;
+      color: var(--ash);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    .tag {
+      background: var(--smoke);
+      color: var(--ash);
+      padding: 1px 7px;
+      border-radius: 2px;
+      font-size: 0.62rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+
+    .tag.high {
+      background: rgba(192, 74, 58, 0.1);
+      color: var(--danger);
+    }
+
+    .tag.med {
+      background: rgba(176, 120, 64, 0.1);
+      color: var(--mid);
+    }
+
+    .alert-snippet {
+      font-size: 0.78rem;
+      color: var(--ash);
+      line-height: 1.5;
+      font-weight: 300;
+    }
+
+    .alert-time {
+      font-size: 0.65rem;
+      color: rgba(140, 136, 128, 0.5);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ═══════════════════════════
+   GAPS VIEW
+═══════════════════════════ */
+    .gaps-view {
+      background: var(--cream);
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .gaps-layout {
+      flex: 1;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 0;
+    }
+
+    .gaps-main {
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .gaps-main::-webkit-scrollbar {
+      width: 4px
+    }
+
+    .gaps-main::-webkit-scrollbar-thumb {
+      background: var(--clay-border);
+      border-radius: 2px
+    }
+
+    .gap-card {
+      background: var(--white);
+      border: 0.5px solid var(--clay-border);
+      border-radius: 4px;
+      padding: 18px 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .gap-card:hover {
+      box-shadow: 0 2px 16px rgba(42, 38, 32, 0.07);
+    }
+
+    .gap-card.selected {
+      border-color: var(--clay);
+      box-shadow: 0 0 0 1px var(--clay);
+    }
+
+    .gap-num-badge {
+      font-family: var(--serif);
+      font-size: 1.6rem;
+      font-weight: 300;
+      color: var(--clay);
+      line-height: 1;
+      flex-shrink: 0;
+      min-width: 28px;
+    }
+
+    .gap-body {
+      flex: 1;
+    }
+
+    .gap-title {
+      font-family: var(--serif);
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--charcoal);
+      margin-bottom: 5px;
+    }
+
+    .gap-desc {
+      font-size: 0.8rem;
+      color: var(--ash);
+      line-height: 1.6;
+      font-weight: 300;
+      margin-bottom: 8px;
+    }
+
+    .gap-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .gap-bar-label {
+      font-size: 0.65rem;
+      color: var(--ash);
+      width: 110px;
+      flex-shrink: 0;
+      letter-spacing: 0.04em;
+    }
+
+    .gap-bar-track {
+      flex: 1;
+      height: 3px;
+      background: var(--smoke);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .gap-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--clay);
+    }
+
+    .gap-bar-fill.low {
+      background: var(--success);
+    }
+
+    .gap-bar-fill.med {
+      background: var(--mid);
+    }
+
+    .gap-bar-fill.high {
+      background: var(--danger);
+    }
+
+    .gap-bar-val {
+      font-size: 0.65rem;
+      color: var(--ash);
+      width: 28px;
+      text-align: right;
+    }
+
+    .gap-tags {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    /* GAPS SIDEBAR */
+    .gaps-sidebar {
+      border-left: 0.5px solid var(--clay-border);
+      background: var(--white);
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .gaps-sidebar::-webkit-scrollbar {
+      width: 4px
+    }
+
+    .gaps-sidebar::-webkit-scrollbar-thumb {
+      background: var(--clay-border);
+      border-radius: 2px
+    }
+
+    .sidebar-section {
+      margin-bottom: 24px;
+    }
+
+    .sidebar-section-title {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--clay);
+      margin-bottom: 12px;
+      font-weight: 400;
+    }
+
+    .mini-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 8px 0;
+      border-bottom: 0.5px solid var(--clay-border);
+      font-size: 0.78rem;
+    }
+
+    .mini-stat:last-child {
+      border-bottom: none;
+    }
+
+    .mini-stat-label {
+      color: var(--ash);
+      font-weight: 300;
+    }
+
+    .mini-stat-val {
+      font-family: var(--serif);
+      font-size: 1rem;
+      color: var(--charcoal);
+      font-weight: 300;
+    }
+
+    /* ═══════════════════════════
+   UPLOAD VIEW
+═══════════════════════════ */
+    .upload-view {
+      background: var(--cream);
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .upload-layout {
+      flex: 1;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 0;
+    }
+
+    .upload-main {
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .upload-main::-webkit-scrollbar {
+      width: 4px
+    }
+
+    .upload-main::-webkit-scrollbar-thumb {
+      background: var(--clay-border);
+      border-radius: 2px
+    }
+
+    .drop-zone {
+      border: 1px dashed var(--clay);
+      border-radius: 6px;
+      background: var(--white);
+      padding: 40px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.drag-over {
+      background: var(--clay-light);
+      border-color: var(--terracotta);
+    }
+
+    .drop-icon {
+      width: 40px;
+      height: 40px;
+      border: 0.5px solid var(--clay-border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drop-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--ash);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .drop-title {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      font-weight: 300;
+      color: var(--charcoal);
+    }
+
+    .drop-sub {
+      font-size: 0.75rem;
+      color: var(--ash);
+      font-weight: 300;
+      line-height: 1.5;
+    }
+
+    .drop-formats {
+      font-size: 0.65rem;
+      color: var(--clay);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .files-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .file-row {
+      background: var(--white);
+      border: 0.5px solid var(--clay-border);
+      border-radius: 3px;
+      padding: 11px 14px;
+      display: flex;
+      gap: 11px;
+      align-items: center;
+    }
+
+    .file-row+.file-row {
+      border-top: none;
+      border-radius: 0;
+    }
+
+    .file-row:first-child {
+      border-radius: 3px 3px 0 0;
+    }
+
+    .file-row:last-child {
+      border-radius: 0 0 3px 3px;
+    }
+
+    .file-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 3px;
+      background: var(--smoke);
+      border: 0.5px solid var(--clay-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.55rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--ash);
+      flex-shrink: 0;
+    }
+
+    .file-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .file-name {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--charcoal);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-meta {
+      font-size: 0.68rem;
+      color: var(--ash);
+      font-weight: 300;
+      display: flex;
+      gap: 8px;
+      margin-top: 1px;
+    }
+
+    .file-status {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 2px;
+      font-weight: 400;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .file-status.ok {
+      background: rgba(74, 140, 106, 0.1);
+      color: var(--success);
+    }
+
+    .file-status.processing {
+      background: rgba(200, 180, 154, 0.2);
+      color: var(--clay);
+    }
+
+    .file-status.error {
+      background: rgba(192, 74, 58, 0.08);
+      color: var(--danger);
+    }
+
+    .upload-sidebar {
+      border-left: 0.5px solid var(--clay-border);
+      background: var(--white);
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .source-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 0.5px solid var(--clay-border);
+    }
+
+    .source-item:last-child {
+      border-bottom: none;
+    }
+
+    .source-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .source-dot.active {
+      background: var(--success);
+    }
+
+    .source-dot.inactive {
+      background: var(--ash);
+      opacity: 0.4;
+    }
+
+    .source-name {
+      flex: 1;
+      font-size: 0.78rem;
+      font-weight: 300;
+      color: var(--charcoal);
+    }
+
+    .source-count {
+      font-size: 0.68rem;
+      color: var(--ash);
+    }
+
+    /* ─── SECTION HEADER ─── */
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+
+    .section-h {
+      font-family: var(--serif);
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--charcoal);
+      letter-spacing: 0.02em;
+    }
+
+    .section-count {
+      font-size: 0.7rem;
+      color: var(--ash);
+    }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 40px;
+      opacity: 0.5;
+    }
+
+    .empty-state svg {
+      width: 32px;
+      height: 32px;
+      stroke: var(--clay);
+      fill: none;
+      stroke-width: 1;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .empty-title {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-weight: 300;
+      color: var(--ash);
+    }
+
+    .empty-sub {
+      font-size: 0.75rem;
+      color: var(--ash);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* ─── THINKING INDICATOR ─── */
+    .typing-row {
+      padding: 10px 28px;
+    }
+
+    .thinking-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding-top: 4px;
+    }
+
+    .thinking-gif,
+    .thinking-video {
+      width: 28px;
+      height: 28px;
+      object-fit: cover;
+      border-radius: 50%;
+      mix-blend-mode: multiply;
+      filter: contrast(1.1);
+    }
+
+    .thinking-text {
+      font-size: 0.8rem;
+      color: var(--ash);
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo"
+      style="height: 140px; padding: 24px 16px; display: flex; align-items: center; justify-content: center;">
+      <img src="Assets/logo.png" alt="ARIA Logo" style="height: 100px; width: auto; object-fit: contain;">
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label" data-i18n="nav.mainGroup">Principale</div>
+
+      <button class="nav-item active" onclick="switchView('chat', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+        <span data-i18n="nav.chat">Chat</span>
+      </button>
+
+      <button class="nav-item" onclick="switchView('alerts', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+        <span data-i18n="nav.alert">Alert</span>
+        <span class="badge" id="alert-badge">5</span>
+      </button>
+
+      <button class="nav-item" onclick="switchView('gaps', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <span data-i18n="nav.gaps">Gap Analysis</span>
+      </button>
+
+      <div class="nav-section-label" style="margin-top:8px;" data-i18n="nav.contentGroup">Contenuti</div>
+
+      <button class="nav-item" onclick="switchView('upload', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+        <span data-i18n="nav.docs">Documenti</span>
+        <span class="badge grey">12</span>
+      </button>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button class="nav-item" onclick="switchView('settings', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3" />
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+        <span data-i18n="nav.settings">Impostazioni</span>
+      </button>
+      <div class="user-row">
+        <div class="avatar">EL</div>
+        <div>
+          <div class="user-name">Elena</div>
+          <div class="user-role">Senior R&D Chemist</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN ─── -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <span class="topbar-title" id="topbar-title">Chat <em>· ARIA risponde</em></span>
+      <div class="topbar-actions">
+        <div class="status-pill">
+          <span class="pulse"></span>
+          Attiva
+        </div>
+        <button class="top-btn" id="topbar-action">
+          <svg viewBox="0 0 24 24">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Nuova chat
+        </button>
+      </div>
+    </header>
+
+    <!-- ═══ CHAT VIEW ═══ -->
+    <div class="view chat-view active" id="view-chat">
+      <div class="chat-messages" id="chat-messages">
+
+        <div class="divider-date">Oggi · 14 marzo 2026</div>
+
+        <!-- ARIA welcome -->
+        <div class="msg-row">
+          <div class="msg-av aria-av"><img src="Assets/logo.png" alt="ARIA"></div>
+          <div class="msg-content">
+            <div class="msg-sender">ARIA <span class="ts">09:00</span></div>
+            <div class="msg-text">Buongiorno Elena. Ho monitorato 3 nuove fonti questa notte. <strong>2 alert ad alta
+                priorità</strong> ti attendono — un brevetto depositato a Castellón e una revisione normativa EN 14411.
+              Sono pronta per qualsiasi domanda.</div>
+            <div class="source-chips">
+              <span class="chip"><svg viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>Espacenet</span>
+              <span class="chip"><svg viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>EUR-Lex</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Elena -->
+        <div class="msg-row user-row">
+          <div class="msg-av user">EL</div>
+          <div class="msg-content">
+            <div class="msg-sender">Elena <span class="ts">09:14</span></div>
+            <div class="msg-text">Ci sono brevetti recenti su smalti opachi ad alte prestazioni per gres porcellanato
+              depositati in Spagna negli ultimi 6 mesi?</div>
+          </div>
+        </div>
+
+
+        <!-- ARIA response -->
+        <div class="msg-row">
+          <div class="msg-av aria-av"><img src="Assets/logo.png" alt="ARIA"></div>
+          <div class="msg-content">
+            <div class="msg-sender">ARIA <span class="ts">09:14</span></div>
+            <div class="msg-text">Ho trovato <strong>3 brevetti rilevanti</strong> su Espacenet nel periodo
+              richiesto.<br><br>Il più significativo è <strong>EP2024-183421</strong>, depositato da Esmaltes Ejemplo S.L. a
+              febbraio 2024. Descrive una finitura opaca a bassa riflettanza con resistenza chimica migliorata. Il
+              processo impiega un precursore di zirconio stabilizzato a cottura 1180°C con addizione di ossido di cerio
+              al 2,3%.<br><br>Gli altri due brevetti (ES2024-091 e WO2024-44812) trattano approcci diversi alla mattità
+              tramite microstruttura superficiale — meno rilevanti per il tuo profilo attuale.</div>
+            <div class="source-chips">
+              <span class="chip"><svg viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>EP2024-183421</span>
+              <span class="chip"><svg viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>ES2024-091</span>
+              <span class="chip"><svg viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>WO2024-44812</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Elena -->
+        <div class="msg-row user-row">
+          <div class="msg-av user">EL</div>
+          <div class="msg-content">
+            <div class="msg-sender">Elena <span class="ts">09:17</span></div>
+            <div class="msg-text">Il brevetto EP2024-183421 è soggetto alla EN 14411 aggiornata?</div>
+          </div>
+        </div>
+
+        <!-- ARIA -->
+        <div class="msg-row">
+          <div class="msg-av aria-av"><img src="Assets/logo.png" alt="ARIA"></div>
+          <div class="msg-content">
+            <div class="msg-sender">ARIA <span class="ts">09:17</span></div>
+            <div class="msg-text">Sì. La revisione <strong>EN 14411:2023</strong> pubblicata a ottobre sull'Official
+              Journal dell'UE modifica i parametri di assorbimento d'acqua per le piastrelle BIa (≤0,1%). Il brevetto
+              cita espressamente la conformità al nuovo Allegato C, aggiornato per includere i grandi formati fino a
+              320×160 cm.<br><br>La nota normativa completa è disponibile nel tuo dataset come documento <em>EUR-Lex OJ
+                L 2023/2187</em>.</div>
+            <div class="source-chips">
+              <span class="chip"><svg viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>OJ L 2023/2187</span>
+              <span class="chip"><svg viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>EN 14411:2023</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- INPUT -->
+      <div class="chat-input-area">
+        <div class="input-wrapper" style="flex-direction: column; align-items: stretch; padding: 0;">
+          <div id="attachment-preview" style="display: none; padding: 8px 12px; border-bottom: 0.5px solid var(--clay-border); align-items: center; gap: 10px; background: rgba(0,0,0,0.02);">
+            <div id="preview-icon" style="width: 24px; height: 24px; background: var(--clay); color: white; display: flex; align-items: center; justify-content: center; border-radius: 3px; font-weight: 500; font-size: 0.65rem;">PDF</div>
+            <div id="preview-name" style="flex: 1; font-size: 0.75rem; color: var(--charcoal); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">filename.pdf</div>
+            <button onclick="clearAttachment()" style="background: none; border: none; padding: 4px; cursor: pointer; color: var(--ash); display: flex; align-items: center;">
+              <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+          <div style="display: flex; align-items: flex-end; gap: 10px; padding: 10px 12px;">
+            <textarea id="chat-input" rows="1" placeholder="Chiedi ad ARIA…" onkeydown="handleKey(event)"
+              oninput="autoResize(this)"></textarea>
+            <input type="file" id="chat-file-input" style="display:none" onchange="handleChatFile(this.files)">
+            <div class="input-actions">
+              <button class="input-btn" title="Allega documento" onclick="document.getElementById('chat-file-input').click()">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                </svg>
+              </button>
+            <button class="send-btn-main" onclick="sendMsg()" title="Invia">
+              <svg viewBox="0 0 24 24">
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- ═══ ALERTS VIEW ═══ -->
+    <div class="view alerts-view" id="view-alerts">
+      <div class="view-inner">
+
+        <div class="filter-bar">
+          <button class="filter-pill on" onclick="toggleFilter(this)">Tutti</button>
+          <button class="filter-pill" onclick="toggleFilter(this)">Alta priorità</button>
+          <button class="filter-pill" onclick="toggleFilter(this)">Brevetti</button>
+          <button class="filter-pill" onclick="toggleFilter(this)">Normative</button>
+          <button class="filter-pill" onclick="toggleFilter(this)">Paper</button>
+          <button class="filter-pill" onclick="toggleFilter(this)">Fiere</button>
+        </div>
+
+        <div>
+          <div class="section-header">
+            <span class="section-h">Non letti</span>
+            <span class="section-count">5 alert</span>
+          </div>
+        </div>
+
+        <div class="alerts-list">
+          <div class="alert-card" onclick="markRead(this)">
+            <div class="rel-dot high"></div>
+            <div class="alert-body">
+              <div class="alert-title">Brevetto EP2024-183421 — Finitura opaca ad alte prestazioni</div>
+              <div class="alert-meta">
+                <span>Esmaltes Ejemplo S.L. · Espacenet</span>
+                <span class="tag high">Alta priorità</span>
+                <span class="tag">Brevetto</span>
+              </div>
+              <div class="alert-snippet">Depositato il 14 feb 2024. Descrive una finitura opaca a bassa riflettanza per
+                gres porcellanato con precursore di zirconio a 1180°C.</div>
+            </div>
+            <span class="alert-time">2 ore fa</span>
+          </div>
+
+          <div class="alert-card" onclick="markRead(this)">
+            <div class="rel-dot high"></div>
+            <div class="alert-body">
+              <div class="alert-title">EN 14411:2023 — Revisione Allegato C grandi formati</div>
+              <div class="alert-meta">
+                <span>EUR-Lex · Official Journal UE</span>
+                <span class="tag high">Alta priorità</span>
+                <span class="tag">Normativa</span>
+              </div>
+              <div class="alert-snippet">Modifica parametri di assorbimento acqua per piastrelle BIa. Include nuove
+                specifiche per formati fino a 320×160 cm.</div>
+            </div>
+            <span class="alert-time">3 ore fa</span>
+          </div>
+
+          <div class="alert-card" onclick="markRead(this)">
+            <div class="rel-dot med"></div>
+            <div class="alert-body">
+              <div class="alert-title">Paper: Zirconia stabilizzata in smalti a bassa temperatura di cottura</div>
+              <div class="alert-meta">
+                <span>Journal of European Ceramic Society · Vol. 44</span>
+                <span class="tag med">Media priorità</span>
+                <span class="tag">Paper</span>
+              </div>
+              <div class="alert-snippet">Studio sulla stabilizzazione della zirconia con ossidi di terre rare per
+                formulazioni sotto 1100°C.</div>
+            </div>
+            <span class="alert-time">Ieri</span>
+          </div>
+
+          <div class="alert-card" onclick="markRead(this)">
+            <div class="rel-dot med"></div>
+            <div class="alert-body">
+              <div class="alert-title">Report Cersaie 2024 — Trend finitura mat & silk</div>
+              <div class="alert-meta">
+                <span>Qualicer Proceedings 2024</span>
+                <span class="tag med">Media priorità</span>
+                <span class="tag">Fiera</span>
+              </div>
+              <div class="alert-snippet">Analisi dei trend estetici presentati a Cersaie. La finitura silk supera il mat
+                puro nelle preferenze dei buyer europei.</div>
+            </div>
+            <span class="alert-time">2 giorni fa</span>
+          </div>
+
+          <div class="alert-card" onclick="markRead(this)">
+            <div class="rel-dot low"></div>
+            <div class="alert-body">
+              <div class="alert-title">Aggiornamento scheda tecnica adesivo C2TE S1 — Competitor</div>
+              <div class="alert-meta">
+                <span>Sito web competitor · Web monitoring</span>
+                <span class="tag">Bassa priorità</span>
+                <span class="tag">Competitor</span>
+              </div>
+              <div class="alert-snippet">Revisione delle specifiche tecniche per l'adesivo cementizio ad alte
+                prestazioni. Variazione resistenza a trazione.</div>
+            </div>
+            <span class="alert-time">3 giorni fa</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ GAPS VIEW ═══ -->
+    <div class="view gaps-view" id="view-gaps">
+      <div class="gaps-layout">
+        <div class="gaps-main">
+
+          <div class="section-header">
+            <span class="section-h" data-i18n="gaps.title">Zone di ricerca aperte</span>
+            <span class="section-count" data-i18n="gaps.subtitle">6 gap identificati</span>
+          </div>
+
+          <div class="gap-card selected" onclick="selectGap(this)">
+            <div class="gap-num-badge">01</div>
+            <div class="gap-body">
+              <div class="gap-title" data-i18n="gaps.g1.title">Smalti opachi a bassa temperatura</div>
+              <div class="gap-desc" data-i18n="gaps.g1.desc">Poca copertura brevettuale sotto 1100°C con proprietà meccaniche equivalenti agli smalti ad alta temperatura.</div>
+              <div class="gap-bar-row">
+                <span class="gap-bar-label" data-i18n="gaps.barPatent">Copertura brevettuale</span>
+                <div class="gap-bar-track">
+                  <div class="gap-bar-fill low" style="width:18%"></div>
+                </div>
+                <span class="gap-bar-val">18%</span>
+              </div>
+              <div class="gap-bar-row">
+                <span class="gap-bar-label" data-i18n="gaps.barMarket">Interesse di mercato</span>
+                <div class="gap-bar-track">
+                  <div class="gap-bar-fill high" style="width:84%"></div>
+                </div>
+                <span class="gap-bar-val">84%</span>
+              </div>
+              <div class="gap-tags">
+                <span class="tag" data-i18n="gaps.g1.t1">Smalti</span>
+                <span class="tag" data-i18n="gaps.g1.t2">Risparmio energetico</span>
+                <span class="tag" data-i18n="gaps.g1.t3">Alta opportunità</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="gap-card" onclick="selectGap(this)">
+            <div class="gap-num-badge">02</div>
+            <div class="gap-body">
+              <div class="gap-title" data-i18n="gaps.g2.title">Adesivi cementizi per grandi formati</div>
+              <div class="gap-desc" data-i18n="gaps.g2.desc">Il passaggio a formati 120×280 non è ancora accompagnato da formulazioni dedicate nei principali registri brevettuali europei.</div>
+              <div class="gap-bar-row">
+                <span class="gap-bar-label" data-i18n="gaps.barPatent">Copertura brevettuale</span>
+                <div class="gap-bar-track">
+                  <div class="gap-bar-fill med" style="width:32%"></div>
+                </div>
+                <span class="gap-bar-val">32%</span>
+              </div>
+              <div class="gap-bar-row">
+                <span class="gap-bar-label" data-i18n="gaps.barMarket">Interesse di mercato</span>
+                <div class="gap-bar-track">
+                  <div class="gap-bar-fill high" style="width:91%"></div>
+                </div>
+                <span class="gap-bar-val">91%</span>
+              </div>
+              <div class="gap-tags">
+                <span class="tag" data-i18n="gaps.g2.t1">Adesivi</span>
+                <span class="tag" data-i18n="gaps.g2.t2">Grandi formati</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="gap-card" onclick="selectGap(this)">
+            <div class="gap-num-badge">03</div>
+            <div class="gap-body">
+              <div class="gap-title" data-i18n="gaps.g3.title">Pigmenti a base di ossidi naturali a basso impatto</div>
+              <div class="gap-desc" data-i18n="gaps.g3.desc">Crescente domanda per formulazioni a basso impatto ambientale, ricerca brevettuale ancora frammentata tra più paesi.</div>
+              <div class="gap-bar-row">
+                <span class="gap-bar-label" data-i18n="gaps.barPatent">Copertura brevettuale</span>
+                <div class="gap-bar-track">
+                  <div class="gap-bar-fill med" style="width:41%"></div>
+                </div>
+                <span class="gap-bar-val">41%</span>
+              </div>
+              <div class="gap-bar-row">
+                <span class="gap-bar-label" data-i18n="gaps.barMarket">Interesse di mercato</span>
+                <div class="gap-bar-track">
+                  <div class="gap-bar-fill high" style="width:76%"></div>
+                </div>
+                <span class="gap-bar-val">76%</span>
+              </div>
+              <div class="gap-tags">
+                <span class="tag" data-i18n="gaps.g3.t1">Pigmenti</span>
+                <span class="tag" data-i18n="gaps.g3.t2">Sostenibilità</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="gap-card" onclick="selectGap(this)">
+            <div class="gap-num-badge">04</div>
+            <div class="gap-body">
+              <div class="gap-title" data-i18n="gaps.g4.title">Fritte per cottura rapida (fast-fire) ultraspessa</div>
+              <div class="gap-desc" data-i18n="gaps.g4.desc">Nuovi forni a cottura ultrarapida richiedono fritte con comportamento reologico specifico. Brevetti esistenti coprono solo spessori standard.</div>
+              <div class="gap-bar-row">
+                <span class="gap-bar-label" data-i18n="gaps.barPatent">Copertura brevettuale</span>
+                <div class="gap-bar-track">
+                  <div class="gap-bar-fill low" style="width:12%"></div>
+                </div>
+                <span class="gap-bar-val">12%</span>
+              </div>
+              <div class="gap-bar-row">
+                <span class="gap-bar-label" data-i18n="gaps.barMarket">Interesse di mercato</span>
+                <div class="gap-bar-track">
+                  <div class="gap-bar-fill med" style="width:58%"></div>
+                </div>
+                <span class="gap-bar-val">58%</span>
+              </div>
+              <div class="gap-tags">
+                <span class="tag" data-i18n="gaps.g4.t1">Fritte</span>
+                <span class="tag" data-i18n="gaps.g4.t2">Produzione</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- GAPS SIDEBAR -->
+        <div class="gaps-sidebar">
+          <div class="sidebar-section">
+            <div class="sidebar-section-title" data-i18n="gaps.sidebar.datasetTitle">Panoramica dataset</div>
+            <div class="mini-stat"><span class="mini-stat-label" data-i18n="gaps.sidebar.patents">Brevetti analizzati</span><span
+                class="mini-stat-val">847</span></div>
+            <div class="mini-stat"><span class="mini-stat-label" data-i18n="gaps.sidebar.papers">Paper scientifici</span><span
+                class="mini-stat-val">312</span></div>
+            <div class="mini-stat"><span class="mini-stat-label" data-i18n="gaps.sidebar.csv">Record CSV</span><span class="mini-stat-val">100</span>
+            </div>
+            <div class="mini-stat"><span class="mini-stat-label" data-i18n="gaps.sidebar.updated">Aggiornamento</span><span class="mini-stat-val"
+                style="font-size:0.78rem" data-i18n="gaps.sidebar.updatedVal">Oggi 06:00</span></div>
+          </div>
+
+          <div class="sidebar-section">
+            <div class="sidebar-section-title" data-i18n="gaps.sidebar.distTitle">Distribuzione gap per area</div>
+            <div class="mini-stat"><span class="mini-stat-label" data-i18n="gaps.sidebar.glazesFrits">Smalti &amp; Fritte</span><span
+                class="mini-stat-val">3</span></div>
+            <div class="mini-stat"><span class="mini-stat-label" data-i18n="gaps.sidebar.adhesivesSide">Adesivi</span><span class="mini-stat-val">1</span>
+            </div>
+            <div class="mini-stat"><span class="mini-stat-label" data-i18n="gaps.sidebar.pigmentsSide">Pigmenti</span><span class="mini-stat-val">1</span>
+            </div>
+            <div class="mini-stat"><span class="mini-stat-label" data-i18n="gaps.sidebar.regulations">Normativa</span><span class="mini-stat-val">1</span>
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <div class="sidebar-section-title" data-i18n="gaps.sidebar.quickAction">Azione rapida</div>
+            <button class="top-btn" style="width:100%;justify-content:center;height:32px;"
+              onclick="switchView('chat', document.querySelector('.nav-item'))">
+              <svg viewBox="0 0 24 24">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              <span data-i18n="gaps.sidebar.exploreBtn">Approfondisci con ARIA</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ UPLOAD VIEW ═══ -->
+    <div class="view upload-view" id="view-upload">
+      <div class="upload-layout">
+        <div class="upload-main">
+
+          <div class="drop-zone" id="drop-zone" ondragover="event.preventDefault();this.classList.add('drag-over')"
+            ondragleave="this.classList.remove('drag-over')" ondrop="handleDrop(event)"
+            onclick="document.getElementById('file-input').click()">
+            <input type="file" id="file-input" multiple accept=".pdf,.csv,.xlsx" style="display:none"
+              onchange="handleFiles(this.files)">
+            <div class="drop-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+            </div>
+            <p class="drop-title">Trascina i documenti qui</p>
+            <p class="drop-sub">Brevetti, paper scientifici, standard tecnici,<br>report di fiere, schede tecniche, file
+              CSV</p>
+            <p class="drop-formats">PDF · CSV · XLSX</p>
+          </div>
+
+          <div>
+            <div class="section-header">
+              <span class="section-h">Documenti indicizzati</span>
+              <span class="section-count">12 file</span>
+            </div>
+          </div>
+
+          <div class="files-section" id="files-list">
+            <div class="file-row">
+              <div class="file-icon">PDF</div>
+              <div class="file-info">
+                <div class="file-name">EP2024-183421_Esmaltes_Ejemplo.pdf</div>
+                <div class="file-meta"><span>Brevetto</span><span>2.3 MB</span><span>14 feb 2024</span></div>
+              </div>
+              <span class="file-status ok">Indicizzato</span>
+            </div>
+            <div class="file-row">
+              <div class="file-icon">PDF</div>
+              <div class="file-info">
+                <div class="file-name">EN_14411_2023_Allegato_C.pdf</div>
+                <div class="file-meta"><span>Normativa</span><span>1.1 MB</span><span>12 ott 2023</span></div>
+              </div>
+              <span class="file-status ok">Indicizzato</span>
+            </div>
+            <div class="file-row">
+              <div class="file-icon">PDF</div>
+              <div class="file-info">
+                <div class="file-name">JECS_2024_Zirconia_low_temp.pdf</div>
+                <div class="file-meta"><span>Paper scientifico</span><span>4.7 MB</span><span>8 gen 2024</span></div>
+              </div>
+              <span class="file-status ok">Indicizzato</span>
+            </div>
+            <div class="file-row">
+              <div class="file-icon">CSV</div>
+              <div class="file-info">
+                <div class="file-name">monitoring_RD_Q1_2024.csv</div>
+                <div class="file-meta"><span>Monitoring R&D</span><span>180 KB</span><span>1 mar 2024</span></div>
+              </div>
+              <span class="file-status ok">Indicizzato</span>
+            </div>
+            <div class="file-row">
+              <div class="file-icon">PDF</div>
+              <div class="file-info">
+                <div class="file-name">Qualicer_2024_proceedings.pdf</div>
+                <div class="file-meta"><span>Report fiera</span><span>8.2 MB</span><span>20 feb 2024</span></div>
+              </div>
+              <span class="file-status processing">In elaborazione</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- UPLOAD SIDEBAR -->
+        <div class="upload-sidebar">
+          <div class="sidebar-section">
+            <div class="sidebar-section-title">Fonti attive</div>
+            <div class="source-item"><span class="source-dot active"></span><span
+                class="source-name">Espacenet</span><span class="source-count">312</span></div>
+            <div class="source-item"><span class="source-dot active"></span><span
+                class="source-name">EUR-Lex</span><span class="source-count">48</span></div>
+            <div class="source-item"><span class="source-dot active"></span><span class="source-name">Scopus</span><span
+                class="source-count">201</span></div>
+            <div class="source-item"><span class="source-dot active"></span><span class="source-name">J. Eur. Ceramic
+                Soc.</span><span class="source-count">89</span></div>
+            <div class="source-item"><span class="source-dot active"></span><span class="source-name">UNI /
+                ISO</span><span class="source-count">34</span></div>
+            <div class="source-item"><span class="source-dot inactive"></span><span class="source-name">Cersaie
+                web</span><span class="source-count">—</span></div>
+            <div class="source-item"><span class="source-dot inactive"></span><span class="source-name">Google
+                Patents</span><span class="source-count">—</span></div>
+          </div>
+
+          <div class="sidebar-section">
+            <div class="sidebar-section-title">Storage</div>
+            <div class="mini-stat"><span class="mini-stat-label">Documenti PDF</span><span
+                class="mini-stat-val">9</span></div>
+            <div class="mini-stat"><span class="mini-stat-label">Record CSV</span><span class="mini-stat-val">100</span>
+            </div>
+            <div class="mini-stat"><span class="mini-stat-label">Fonti web</span><span class="mini-stat-val">5</span>
+            </div>
+            <div class="mini-stat"><span class="mini-stat-label">Spazio usato</span><span class="mini-stat-val"
+                style="font-size:0.78rem">28.4 MB</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SETTINGS PLACEHOLDER ═══ -->
+    <div class="view" id="view-settings"
+      style="background:var(--cream);flex-direction:column;align-items:center;padding:40px;">
+      <div
+        style="width: 100%; max-width: 500px; background: var(--white); border: 0.5px solid var(--clay-border); border-radius: 6px; padding: 24px;">
+        <h2
+          style="font-family: var(--serif); font-size: 1.2rem; font-weight: 400; color: var(--charcoal); margin-bottom: 24px;"
+          data-i18n="settings.title">Opzioni Assistente</h2>
+
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          <!-- Lingua -->
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; border-bottom: 0.5px solid var(--clay-border); padding-bottom: 12px;">
+            <div>
+              <div style="font-size: 0.9rem; color: var(--charcoal);" data-i18n="settings.lang">Lingua Interfaccia</div>
+              <div style="font-size: 0.75rem; color: var(--ash); margin-top: 4px;" data-i18n="settings.langDesc">Scegli
+                la lingua per l'assistente ARIA.</div>
+            </div>
+            <select id="lang-select"
+              style="padding: 6px 10px; border-radius: 4px; border: 0.5px solid var(--clay); font-family: var(--sans); font-size: 0.8rem; background: var(--cream); outline: none;"
+              onchange="changeLanguage(this.value)">
+              <option value="it">Italiano</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+
+          <!-- Notifiche Email -->
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; border-bottom: 0.5px solid var(--clay-border); padding-bottom: 12px;">
+            <div>
+              <div style="font-size: 0.9rem; color: var(--charcoal);" data-i18n="settings.notifications">Notifiche Email
+              </div>
+              <div style="font-size: 0.75rem; color: var(--ash); margin-top: 4px;" data-i18n="settings.notifDesc">Ricevi
+                report giornalieri sulle nuove fonti indicizzate.</div>
+            </div>
+            <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+              <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+              <span class="slider round"
+                style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--clay); transition: .2s; border-radius: 24px;"
+                onclick="showToast()">
+                <span
+                  style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .2s; border-radius: 50%;"></span>
+              </span>
+            </label>
+          </div>
+
+          <!-- Tema -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px;">
+            <div>
+              <div style="font-size: 0.9rem; color: var(--charcoal);" data-i18n="settings.theme">Tema Visivo</div>
+              <div style="font-size: 0.75rem; color: var(--ash); margin-top: 4px;" data-i18n="settings.themeDesc">Passa
+                alla modalità scura per laboratori a bassa luminosità.</div>
+            </div>
+            <button class="top-btn" onclick="showToast()" data-i18n="settings.themeBtn">Modalità Scura</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast"
+      style="visibility: hidden; min-width: 250px; background-color: var(--charcoal); color: #fff; text-align: center; border-radius: 4px; padding: 12px; position: fixed; z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%); font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.03em; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: opacity 0.3s, visibility 0.3s; opacity: 0;">
+      Funzione in arrivo / Coming soon
+    </div>
+
+    <script>
+      let currentLang = localStorage.getItem('aria_lang') || 'it';
+      let currentAttachment = null;
+
+      const i18n = {
+        it: {
+          nav: { mainGroup: 'Principale', chat: 'Chat', alert: 'Alert', gaps: 'Gap Analysis', contentGroup: 'Contenuti', docs: 'Documenti', settings: 'Impostazioni' },
+          topbar: { active: 'Attiva' },
+          views: {
+            chat: { title: 'Chat <em>· ARIA risponde</em>', action: 'Nuova chat' },
+            alerts: { title: 'Alert <em>· Monitoraggio live</em>', action: 'Segna tutti letti' },
+            gaps: { title: 'Gap Analysis <em>· Zone aperte</em>', action: 'Esporta report' },
+            upload: { title: 'Documenti <em>· Knowledge base</em>', action: 'Aggiungi fonte web' },
+            settings: { title: 'Impostazioni', action: 'Salva modifiche' }
+          },
+          chat: { inputPlaceholder: 'Chiedi ad ARIA…', inputHint1: 'Invio per inviare · Shift+Invio per andare a capo', inputHint2: 'Basato su 12 documenti · 5 fonti web · 100 record CSV', error: "Si è verificato un errore di connessione con il backend locale. Assicurati che il server via `python3 server.py` sia in esecuzione sulla porta 8001.", uploadTooltip: 'Allega documento', sendTooltip: 'Invia', today: 'Oggi · 14 marzo 2026', thinking: 'ARIA sta pensando...' },
+          alerts: { all: 'Tutti', high: 'Alta priorità', patents: 'Brevetti', norms: 'Normative', papers: 'Paper', fairs: 'Fiere', unread: 'Non letti', unreadCount: '5 alert' },
+          gaps: {
+            title: 'Zone di ricerca aperte', subtitle: '6 gap identificati',
+            barPatent: 'Copertura brevettuale', barMarket: 'Interesse di mercato',
+            g1: { title: 'Smalti opachi a bassa temperatura', desc: 'Poca copertura brevettuale sotto 1100°C con proprietà meccaniche equivalenti agli smalti ad alta temperatura.', t1: 'Smalti', t2: 'Risparmio energetico', t3: 'Alta opportunità' },
+            g2: { title: 'Adesivi cementizi per grandi formati', desc: 'Il passaggio a formati 120×280 non è ancora accompagnato da formulazioni dedicate nei principali registri brevettuali europei.', t1: 'Adesivi', t2: 'Grandi formati' },
+            g3: { title: 'Pigmenti a base di ossidi naturali a basso impatto', desc: 'Crescente domanda per formulazioni a basso impatto ambientale, ricerca brevettuale ancora frammentata tra più paesi.', t1: 'Pigmenti', t2: 'Sostenibilità' },
+            g4: { title: 'Fritte per cottura rapida (fast-fire) ultraspessa', desc: 'Nuovi forni a cottura ultrarapida richiedono fritte con comportamento reologico specifico. Brevetti esistenti coprono solo spessori standard.', t1: 'Fritte', t2: 'Produzione' },
+            sidebar: { datasetTitle: 'Panoramica dataset', patents: 'Brevetti analizzati', papers: 'Paper scientifici', csv: 'Record CSV', updated: 'Aggiornamento', updatedVal: 'Oggi 06:00', distTitle: 'Distribuzione gap per area', glazesFrits: 'Smalti & Fritte', adhesivesSide: 'Adesivi', pigmentsSide: 'Pigmenti', regulations: 'Normativa', quickAction: 'Azione rapida', exploreBtn: 'Approfondisci con ARIA' }
+          },
+          upload: { dropTitle: 'Trascina i documenti qui', dropSub: 'Brevetti, paper scientifici, standard tecnici,<br>report di fiere, schede tecniche, file CSV', dropFormats: 'PDF · CSV · XLSX', indexedTitle: 'Documenti indicizzati', indexedCount: '12 file' },
+          settings: { title: 'Opzioni Assistente', lang: 'Lingua Interfaccia', langDesc: "Scegli la lingua per l'assistente ARIA.", notifications: 'Notifiche Email', notifDesc: 'Ricevi report giornalieri sulle nuove fonti indicizzate.', theme: 'Tema Visivo', themeDesc: 'Passa alla modalità scura per laboratori a bassa luminosità.', themeBtn: 'Modalità Scura' },
+          toast: 'Funzione temporaneamente disabilitata nel prototipo.'
+        },
+        en: {
+          nav: { mainGroup: 'Main', chat: 'Chat', alert: 'Alerts', gaps: 'Gap Analysis', contentGroup: 'Content', docs: 'Documents', settings: 'Settings' },
+          topbar: { active: 'Active' },
+          views: {
+            chat: { title: 'Chat <em>· ARIA responds</em>', action: 'New chat' },
+            alerts: { title: 'Alerts <em>· Live monitoring</em>', action: 'Mark all as read' },
+            gaps: { title: 'Gap Analysis <em>· Open areas</em>', action: 'Export report' },
+            upload: { title: 'Documents <em>· Knowledge base</em>', action: 'Add web source' },
+            settings: { title: 'Settings', action: 'Save changes' }
+          },
+          chat: { inputPlaceholder: 'Ask ARIA…', inputHint1: 'Enter to send · Shift+Enter for new line', inputHint2: 'Based on 12 documents · 5 web sources · 100 CSV records', error: "Connection error with the local backend. Make sure the server is running on port 8001 via `python3 server.py`.", uploadTooltip: 'Attach document', sendTooltip: 'Send', today: 'Today · March 14, 2026', thinking: 'ARIA is thinking...' },
+          alerts: { all: 'All', high: 'High priority', patents: 'Patents', norms: 'Regulations', papers: 'Papers', fairs: 'Fairs', unread: 'Unread', unreadCount: '5 alerts' },
+          gaps: {
+            title: 'Open research areas', subtitle: '6 gaps identified',
+            barPatent: 'Patent coverage', barMarket: 'Market interest',
+            g1: { title: 'Low-temperature matte glazes', desc: 'Limited patent coverage below 1100°C with mechanical properties equivalent to high-temperature glazes.', t1: 'Glazes', t2: 'Energy saving', t3: 'High opportunity' },
+            g2: { title: 'Cementitious adhesives for large formats', desc: 'The shift to 120×280 formats has not yet been accompanied by dedicated formulations in the main European patent registries.', t1: 'Adhesives', t2: 'Large formats' },
+            g3: { title: 'Low-impact natural oxide-based pigments', desc: 'Growing demand for low environmental impact formulations, with patent research still fragmented across multiple countries.', t1: 'Pigments', t2: 'Sustainability' },
+            g4: { title: 'Ultra-thick fast-fire frits', desc: 'New ultra-fast firing kilns require frits with specific rheological behavior. Existing patents only cover standard thicknesses.', t1: 'Frits', t2: 'Production' },
+            sidebar: { datasetTitle: 'Dataset overview', patents: 'Patents analyzed', papers: 'Scientific papers', csv: 'CSV records', updated: 'Last updated', updatedVal: 'Today 06:00', distTitle: 'Gap distribution by area', glazesFrits: 'Glazes & Frits', adhesivesSide: 'Adhesives', pigmentsSide: 'Pigments', regulations: 'Regulations', quickAction: 'Quick action', exploreBtn: 'Explore with ARIA' }
+          },
+          upload: { dropTitle: 'Drag documents here', dropSub: 'Patents, scientific papers, technical standards,<br>fair reports, data sheets, CSV files', dropFormats: 'PDF · CSV · XLSX', indexedTitle: 'Indexed documents', indexedCount: '12 files' },
+          settings: { title: 'Assistant Options', lang: 'Interface Language', langDesc: 'Choose the language for the ARIA assistant.', notifications: 'Email Notifications', notifDesc: 'Receive daily reports on new indexed sources.', theme: 'Visual Theme', themeDesc: 'Switch to dark mode for low-light laboratories.', themeBtn: 'Dark Mode' },
+          toast: 'Feature temporarily disabled in the prototype.'
+        }
+      };
+
+      // Backend endpoints.
+      // At the hackathon CHAT_ENDPOINT was the team's n8n cloud webhook (the chat agent workflow).
+      // That instance and workflow are not part of this repo. Point CHAT_ENDPOINT at your own
+      // n8n webhook to use a real workflow; by default the chat talks to the local mock in server.py.
+      const CHAT_ENDPOINT = 'http://localhost:8001/api/chat';
+      const UPLOAD_ENDPOINT = 'http://localhost:8001/api/upload';
+
+      let activeViewId = 'chat';
+
+      const viewIcons = {
+        chat: { actionIcon: '<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' },
+        alerts: { actionIcon: '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' },
+        gaps: { actionIcon: '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' },
+        upload: { actionIcon: '<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' },
+        settings: { actionIcon: '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' },
+      };
+
+      function switchView(id, btn) {
+        activeViewId = id;
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById('view-' + id).classList.add('active');
+        if (btn) btn.classList.add('active');
+        
+        const dict = i18n[currentLang];
+        const cfg = dict.views[id];
+        const iconCfg = viewIcons[id];
+        
+        document.getElementById('topbar-title').innerHTML = cfg.title;
+        document.getElementById('topbar-action').innerHTML = (iconCfg ? iconCfg.actionIcon : '') + ' ' + cfg.action;
+        if (id === 'alerts') { document.getElementById('alert-badge').style.display = 'none'; }
+      }
+
+      function toggleFilter(el) {
+        document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('on'));
+        el.classList.add('on');
+      }
+
+      function selectGap(card) {
+        document.querySelectorAll('.gap-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+      }
+
+      function markRead(card) {
+        card.style.opacity = '0.5';
+        card.querySelector('.rel-dot').style.opacity = '0';
+      }
+
+      function autoResize(el) {
+        el.style.height = 'auto';
+        el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+      }
+
+      function handleKey(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMsg();
+        }
+      }
+
+      async function sendMsg() {
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        const hasFile = currentAttachment !== null;
+        
+        if (!text && !hasFile) return;
+
+        const msgs = document.getElementById('chat-messages');
+
+        // User message
+        const userRow = document.createElement('div');
+        userRow.className = 'msg-row user-row';
+        
+        let fileHtml = '';
+        if (hasFile) {
+          const fileExt = currentAttachment.name.split('.').pop().toUpperCase();
+          fileHtml = `
+            <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(0,0,0,0.03); border-radius: 6px; border: 0.5px solid var(--clay-border); margin-bottom: 8px; max-width: 320px;">
+              <div style="width: 32px; height: 32px; background: var(--clay); color: white; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-weight: 500; font-size: 0.75rem;">
+                ${fileExt}
+              </div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-size: 0.82rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--charcoal);">${currentAttachment.name}</div>
+                <div style="font-size: 0.68rem; color: var(--ash);">${(currentAttachment.size / 1024).toFixed(1)} KB</div>
+              </div>
+            </div>`;
+        }
+
+        userRow.innerHTML = `
+          <div class="msg-av user">EL</div>
+          <div class="msg-content">
+            <div class="msg-sender">Elena <span class="ts">${getTime()}</span></div>
+            <div class="msg-text">
+              ${fileHtml}
+              ${text ? text.replace(/</g, '&lt;').replace(/\n/g, '<br>') : ''}
+            </div>
+          </div>`;
+        msgs.appendChild(userRow);
+
+        // Clear input and attachment
+        input.value = '';
+        input.style.height = 'auto';
+        const fileToUpload = currentAttachment; // Keep a reference for the fetch
+        clearAttachment();
+
+        // Typing indicator
+        const typing = document.createElement('div');
+        typing.className = 'msg-row typing-row';
+        typing.innerHTML = `
+          <div class="msg-av aria-av"><img src="Assets/logo.png" alt="ARIA"></div>
+          <div class="msg-content">
+            <div class="msg-sender">ARIA <span class="ts">${getTime()}</span></div>
+            <div class="thinking-container">
+              <video src="Assets/ceramic_thinking.mp4" class="thinking-video" autoplay muted loop playsinline></video>
+              <span class="thinking-text">${i18n[currentLang].chat.thinking}</span>
+            </div>
+          </div>`;
+        msgs.appendChild(typing);
+        msgs.scrollTop = msgs.scrollHeight;
+
+        try {
+          let response;
+          if (hasFile) {
+            const formData = new FormData();
+            formData.append('file', fileToUpload);
+            formData.append('message', text || `[ALLEGATO] ${fileToUpload.name}`);
+            formData.append('hasAttachment', 'true');
+            formData.append('type', 'file_to_read');
+            
+            response = await fetch(CHAT_ENDPOINT, {
+              method: 'POST',
+              body: formData,
+            });
+          } else {
+            response = await fetch(CHAT_ENDPOINT, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                message: text,
+                hasAttachment: false
+              }),
+            });
+          }
+
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+          // n8n returns plain text; the local mock returns JSON { response, sources, timestamp }.
+          const raw = await response.text();
+          let replyText = raw;
+          try {
+            const data = JSON.parse(raw);
+            if (data && typeof data.response === 'string') replyText = data.response;
+          } catch (_) { /* plain-text reply */ }
+          replyText = replyText || 'Nessuna risposta ricevuta.';
+          const sourcesHtml = '';
+
+          typing.remove();
+
+          const ariaRow = document.createElement('div');
+          ariaRow.className = 'msg-row aria-row';
+          ariaRow.innerHTML = `
+            <div class="msg-av aria-av"><img src="Assets/logo.png" alt="ARIA"></div>
+            <div class="msg-content">
+              <div class="msg-sender">ARIA <span class="ts">${getTime()}</span></div>
+              <div class="msg-text">${replyText.replace(/\n/g, '<br>')}</div>
+              ${sourcesHtml}
+            </div>`;
+          msgs.appendChild(ariaRow);
+          msgs.scrollTop = msgs.scrollHeight;
+
+        } catch (error) {
+          console.error("Fetch error:", error);
+          typing.remove();
+          const errorRow = document.createElement('div');
+          errorRow.className = 'msg-row aria-row';
+          errorRow.innerHTML = `
+            <div class="msg-av aria-av"><img src="Assets/logo.png" alt="ARIA"></div>
+            <div class="msg-content">
+              <div class="msg-sender">ARIA <span class="ts">${getTime()}</span></div>
+              <div class="msg-text" style="color: var(--danger)">Errore di connessione con il backend. Riprova più tardi.</div>
+            </div>`;
+          msgs.appendChild(errorRow);
+          msgs.scrollTop = msgs.scrollHeight;
+        }
+      }
+
+      function getTime() {
+        return new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+      }
+
+      function handleDrop(e) {
+        e.preventDefault();
+        document.getElementById('drop-zone').classList.remove('drag-over');
+        handleFiles(e.dataTransfer.files);
+      }
+
+      async function handleFiles(files) {
+        const list = document.getElementById('files-list');
+        Array.from(files).forEach(async f => {
+          const ext = f.name.split('.').pop().toUpperCase();
+          const row = document.createElement('div');
+          row.className = 'file-row';
+          row.innerHTML = `
+      <div class="file-icon">${ext}</div>
+      <div class="file-info">
+        <div class="file-name">${f.name}</div>
+        <div class="file-meta"><span>Caricato ora</span><span>${(f.size / 1024 / 1024).toFixed(1)} MB</span></div>
+      </div>
+      <span class="file-status processing">In elaborazione</span>`;
+          list.prepend(row);
+
+          // Create FormData specifically for file
+          const formData = new FormData();
+          formData.append('file', f);
+
+          try {
+            const response = await fetch(UPLOAD_ENDPOINT, {
+              method: 'POST',
+              body: formData,
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log(data);
+            row.querySelector('.file-status').textContent = 'Indicizzato';
+            row.querySelector('.file-status').className = 'file-status ok';
+
+          } catch (error) {
+            console.error('File upload error:', error);
+            row.querySelector('.file-status').textContent = 'Errore server';
+            row.querySelector('.file-status').className = 'file-status error';
+          }
+        });
+      }
+
+      function clearAttachment() {
+        currentAttachment = null;
+        document.getElementById('attachment-preview').style.display = 'none';
+        document.getElementById('chat-file-input').value = '';
+      }
+
+      function handleChatFile(files) {
+        if (!files || files.length === 0) return;
+        currentAttachment = files[0];
+        
+        const preview = document.getElementById('attachment-preview');
+        const icon = document.getElementById('preview-icon');
+        const name = document.getElementById('preview-name');
+        
+        const ext = currentAttachment.name.split('.').pop().toUpperCase();
+        icon.textContent = ext;
+        name.textContent = currentAttachment.name;
+        
+        preview.style.display = 'flex';
+      }
+
+      function updateUITexts() {
+        const dict = i18n[currentLang];
+
+        // Testo generico marcato con data-i18n
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          const keys = key.split('.');
+          let val = dict;
+          for (const k of keys) {
+            val = val[k];
+            if (!val) break;
+          }
+          if (val) el.innerHTML = val;
+        });
+
+        // Aggiorna view corrente nel topbar
+        const cfg = dict.views[activeViewId];
+        if (cfg) {
+          document.getElementById('topbar-title').innerHTML = cfg.title;
+          document.getElementById('topbar-action').innerHTML = viewIcons[activeViewId].actionIcon + ' ' + cfg.action;
+        }
+
+        // Aggiorna specificità
+        document.querySelector('.status-pill').innerHTML = `<span class="pulse"></span>${dict.topbar.active}`;
+        document.getElementById('chat-input').placeholder = dict.chat.inputPlaceholder;
+        document.querySelector('.divider-date').innerHTML = dict.chat.today;
+        
+        // Aggiorna select lingua se presente
+        if (document.getElementById('lang-select')) {
+          document.getElementById('lang-select').value = currentLang;
+        }
+      }
+
+      function changeLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem('aria_lang', lang);
+        updateUITexts();
+      }
+
+      function showToast() {
+        const toast = document.getElementById('toast');
+        toast.innerHTML = i18n[currentLang].toast;
+        toast.style.visibility = 'visible';
+        toast.style.opacity = '1';
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          setTimeout(() => toast.style.visibility = 'hidden', 300);
+        }, 2500);
+      }
+
+      // Inizializza lingua
+      document.addEventListener('DOMContentLoaded', updateUITexts);
+
+      // Aggiungi showToast ai bottoni non funzionanti per UX
+      document.getElementById('topbar-action').addEventListener('click', showToast);
+      document.querySelectorAll('.filter-pill').forEach(el => {
+        el.setAttribute('onclick', 'toggleFilter(this); showToast();');
+      });
+    </script>
+</body>
+
+</html>
